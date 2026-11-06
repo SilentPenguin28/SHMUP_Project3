@@ -15,6 +15,7 @@ public class ShootEmUp : MonoBehaviour
     public float              gameRestartDelay = 2f;
     public WeaponDefinition[] weaponDefinitions;
     public GameObject         prefabPowerUp;
+    public int                pointsPerEnemy = 100;
     public eWeaponType[]      powerUpFrequency = new eWeaponType[] { eWeaponType.blaster,
                                                                      eWeaponType.blaster,
                                                                      eWeaponType.spread,
@@ -33,6 +34,9 @@ public class ShootEmUp : MonoBehaviour
         WEAP_DICT = new Dictionary<eWeaponType, WeaponDefinition>();
         foreach (WeaponDefinition wpDef in weaponDefinitions)
             WEAP_DICT[wpDef.type] = wpDef;
+
+        // Show "Score: 0" as soon as the game starts
+        ScoreCounter.Create();
     }
 
     /// <summary>
@@ -77,6 +81,12 @@ public class ShootEmUp : MonoBehaviour
     }
 
     public void ShipDestroyed(Enemy e){
+        // Only count each enemy once, even if two shots finish it in the same frame
+        if (e.notifiedOfDestruction) return;
+        e.notifiedOfDestruction = true;
+
+        ScoreCounter.AddPoints(pointsPerEnemy);
+
         if(true){
             int ndx = Random.Range(0, powerUpFrequency.Length);
             eWeaponType puType = powerUpFrequency[ndx];
